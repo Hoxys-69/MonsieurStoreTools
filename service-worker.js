@@ -1,8 +1,6 @@
 self.addEventListener("install", e => {
   e.waitUntil(
-    caches.open("volets-cache").then(cache => {
-      return cache.addAll(["/", "/index.html", "/data.js", "/manifest.json", "/icon.png"]);
-    })
+    caches.open("volets-cache").then(cache => cache.addAll(["/", "/index.html", "/data.js", "/manifest.json"]))
   );
 });
 
