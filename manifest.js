@@ -1,5 +1,5 @@
 {
-  "name": "Guide Volets Roulants",
+  "name": "Guide Moteur Radio",
   "short_name": "Volets",
   "start_url": "index.html",
   "display": "standalone",
