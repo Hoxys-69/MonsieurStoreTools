@@ -7,125 +7,114 @@
   <link rel="manifest" href="manifest.json">
   <script>
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js");
+      navigator.serviceWorker.register("service-worker.js").catch(e => console.warn("SW register failed:", e));
     }
   </script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f4f4f4;
-      color: #333;
-    }
-
-    header {
-      background: #ff6600; /* orange */
-      color: white;
-      padding: 15px;
-      text-align: center;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 22px;
-    }
-
-    .container {
-      padding: 20px;
-    }
-
-    .menu {
-      background: white;
-      margin: 10px 0;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .menu:hover {
-      background: #ffe5cc;
-    }
-
-    .back {
-      display: inline-block;
-      margin-bottom: 15px;
-      padding: 8px 12px;
-      background: #666;
-      color: white;
-      border-radius: 5px;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    ol li {
-      margin-bottom: 8px;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f4; color: #333; }
+    header { background: #ff6600; color: white; padding: 15px; text-align: center; }
+    h1 { margin: 0; font-size: 22px; }
+    .container { padding: 20px; }
+    .menu { background: white; margin: 10px 0; padding: 15px; border-radius: 8px;
+           box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; transition: background 0.2s; }
+    .menu:hover { background: #ffe5cc; }
+    .back { display: inline-block; margin-bottom: 15px; padding: 8px 12px; background: #666; color: white;
+           border-radius: 5px; text-decoration: none; cursor: pointer; }
+    ol li { margin-bottom: 8px; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>⚙️ Guide Volets Roulants</h1>
-  </header>
+  <header><h1>⚙️ Guide Volets Roulants</h1></header>
   <div class="container" id="content"></div>
 
   <script src="data.js"></script>
   <script>
     const content = document.getElementById("content");
 
-    // Liste des marques uniques
+    if (typeof data === "undefined") {
+      content.innerHTML = '<div class="menu">Erreur : fichier <code>data.js</code> introuvable ou mal chargé.</div>';
+      console.error("data.js non chargé ou variable `data` manquante.");
+      throw new Error("data.js non chargé");
+    }
+
     const marques = [...new Set(data.map(item => item.marque))];
 
-    // Page d'accueil → Marques
+    function createBackButton(onClick) {
+      const back = document.createElement("div");
+      back.className = "back";
+      back.textContent = "← Retour";
+      back.addEventListener("click", onClick);
+      return back;
+    }
+
     function showMarques() {
       content.innerHTML = "";
       marques.forEach(marque => {
         const div = document.createElement("div");
         div.className = "menu";
-        div.innerText = marque;
-        div.onclick = () => showModeles(marque);
+        div.textContent = marque;
+        div.addEventListener("click", () => showModeles(marque));
         content.appendChild(div);
       });
     }
 
-    // Page modèles d'une marque
     function showModeles(marque) {
-      content.innerHTML = `<div class="back" onclick="showMarques()">← Retour</div>`;
+      content.innerHTML = "";
+      content.appendChild(createBackButton(showMarques));
       const modeles = data.filter(item => item.marque === marque);
       modeles.forEach(modele => {
         const div = document.createElement("div");
         div.className = "menu";
-        div.innerText = modele.modele;
-        div.onclick = () => showGuides(modele);
+        div.textContent = modele.modele;
+        div.addEventListener("click", () => showGuides(modele));
         content.appendChild(div);
       });
     }
 
-    // Page guides d'un modèle
     function showGuides(modele) {
-      content.innerHTML = `<div class="back" onclick="showModeles('${modele.marque}')">← Retour</div>`;
+      content.innerHTML = "";
+      content.appendChild(createBackButton(() => showModeles(modele.marque)));
+      if (!Array.isArray(modele.guides) || modele.guides.length === 0) {
+        const msg = document.createElement("div");
+        msg.className = "menu";
+        msg.textContent = "Aucun guide disponible pour ce modèle.";
+        content.appendChild(msg);
+        return;
+      }
       modele.guides.forEach(guide => {
         const div = document.createElement("div");
         div.className = "menu";
-        div.innerText = guide.titre;
-        div.onclick = () => showGuideDetail(modele, guide);
+        div.textContent = guide.titre;
+        div.addEventListener("click", () => showGuideDetail(modele, guide));
         content.appendChild(div);
       });
     }
 
-    // Page détails d’un guide
     function showGuideDetail(modele, guide) {
-      content.innerHTML = `<div class="back" onclick="showGuides(data.find(m => m.marque === '${modele.marque}' && m.modele === '${modele.modele}'))">← Retour</div>`;
+      content.innerHTML = "";
+      content.appendChild(createBackButton(() => showGuides(modele)));
       const div = document.createElement("div");
       div.className = "menu";
-      div.innerHTML = `<h2>${modele.marque} - ${modele.modele}</h2>
-                       <h3>${guide.titre}</h3>
-                       <ol>${guide.etapes.map(e => `<li>${e}</li>`).join("")}</ol>`;
+
+      const h2 = document.createElement("h2");
+      h2.textContent = `${modele.marque} - ${modele.modele}`;
+      div.appendChild(h2);
+
+      const h3 = document.createElement("h3");
+      h3.textContent = guide.titre;
+      div.appendChild(h3);
+
+      const ol = document.createElement("ol");
+      (guide.etapes || []).forEach(e => {
+        const li = document.createElement("li");
+        li.textContent = e;
+        ol.appendChild(li);
+      });
+      div.appendChild(ol);
+
       content.appendChild(div);
     }
 
-    // Lancer l’accueil
     showMarques();
   </script>
 </body>
