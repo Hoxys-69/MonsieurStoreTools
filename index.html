@@ -74,10 +74,10 @@
   <script>
     const content = document.getElementById("content");
 
-    // Regrouper par marque
+    // Liste des marques uniques
     const marques = [...new Set(data.map(item => item.marque))];
 
-    // Affiche menu principal
+    // Page d'accueil → Marques
     function showMarques() {
       content.innerHTML = "";
       marques.forEach(marque => {
@@ -89,7 +89,7 @@
       });
     }
 
-    // Affiche modèles pour une marque
+    // Page modèles d'une marque
     function showModeles(marque) {
       content.innerHTML = `<div class="back" onclick="showMarques()">← Retour</div>`;
       const modeles = data.filter(item => item.marque === marque);
@@ -97,35 +97,35 @@
         const div = document.createElement("div");
         div.className = "menu";
         div.innerText = modele.modele;
-        div.onclick = () => showFiche(modele);
+        div.onclick = () => showGuides(modele);
         content.appendChild(div);
       });
     }
 
-    // Affiche la liste des guides pour un modèle
-function showGuides(modele) {
-  content.innerHTML = `<div class="back" onclick="showModeles('${modele.marque}')">← Retour</div>`;
-  modele.guides.forEach(guide => {
-    const div = document.createElement("div");
-    div.className = "menu";
-    div.innerText = guide.titre;
-    div.onclick = () => showGuideDetail(modele, guide);
-    content.appendChild(div);
-  });
-}
+    // Page guides d'un modèle
+    function showGuides(modele) {
+      content.innerHTML = `<div class="back" onclick="showModeles('${modele.marque}')">← Retour</div>`;
+      modele.guides.forEach(guide => {
+        const div = document.createElement("div");
+        div.className = "menu";
+        div.innerText = guide.titre;
+        div.onclick = () => showGuideDetail(modele, guide);
+        content.appendChild(div);
+      });
+    }
 
-// Affiche un guide avec ses étapes
-function showGuideDetail(modele, guide) {
-  content.innerHTML = `<div class="back" onclick="showGuides(${JSON.stringify(modele)})">← Retour</div>`;
-  const div = document.createElement("div");
-  div.className = "menu";
-  div.innerHTML = `<h2>${modele.marque} - ${modele.modele}</h2>
-                   <h3>${guide.titre}</h3>
-                   <ol>${guide.etapes.map(e => `<li>${e}</li>`).join("")}</ol>`;
-  content.appendChild(div);
-}
+    // Page détails d’un guide
+    function showGuideDetail(modele, guide) {
+      content.innerHTML = `<div class="back" onclick="showGuides(data.find(m => m.marque === '${modele.marque}' && m.modele === '${modele.modele}'))">← Retour</div>`;
+      const div = document.createElement("div");
+      div.className = "menu";
+      div.innerHTML = `<h2>${modele.marque} - ${modele.modele}</h2>
+                       <h3>${guide.titre}</h3>
+                       <ol>${guide.etapes.map(e => `<li>${e}</li>`).join("")}</ol>`;
+      content.appendChild(div);
+    }
 
-    // Afficher l'accueil au démarrage
+    // Lancer l’accueil
     showMarques();
   </script>
 </body>
