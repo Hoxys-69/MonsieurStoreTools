@@ -11,32 +11,109 @@
     }
   </script>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f8f8f8; }
-    h1 { color: #007aff; }
-    .fiche {
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f4f4f4;
+      color: #333;
+    }
+
+    header {
+      background: #ff6600; /* orange */
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .menu {
       background: white;
-      margin: 15px 0;
+      margin: 10px 0;
       padding: 15px;
       border-radius: 8px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: background 0.2s;
     }
-    .fiche h2 { margin-top: 0; }
+
+    .menu:hover {
+      background: #ffe5cc;
+    }
+
+    .back {
+      display: inline-block;
+      margin-bottom: 15px;
+      padding: 8px 12px;
+      background: #666;
+      color: white;
+      border-radius: 5px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    ol li {
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 <body>
-  <h1>⚙️ Guide Volets Roulants</h1>
-  <div id="content"></div>
+  <header>
+    <h1>⚙️ Guide Volets Roulants</h1>
+  </header>
+  <div class="container" id="content"></div>
 
   <script src="data.js"></script>
   <script>
     const content = document.getElementById("content");
-    data.forEach(item => {
+
+    // Regrouper par marque
+    const marques = [...new Set(data.map(item => item.marque))];
+
+    // Affiche menu principal
+    function showMarques() {
+      content.innerHTML = "";
+      marques.forEach(marque => {
+        const div = document.createElement("div");
+        div.className = "menu";
+        div.innerText = marque;
+        div.onclick = () => showModeles(marque);
+        content.appendChild(div);
+      });
+    }
+
+    // Affiche modèles pour une marque
+    function showModeles(marque) {
+      content.innerHTML = `<div class="back" onclick="showMarques()">← Retour</div>`;
+      const modeles = data.filter(item => item.marque === marque);
+      modeles.forEach(modele => {
+        const div = document.createElement("div");
+        div.className = "menu";
+        div.innerText = modele.modele;
+        div.onclick = () => showFiche(modele);
+        content.appendChild(div);
+      });
+    }
+
+    // Affiche la fiche technique
+    function showFiche(modele) {
+      content.innerHTML = `<div class="back" onclick="showModeles('${modele.marque}')">← Retour</div>`;
       const div = document.createElement("div");
-      div.className = "fiche";
-      div.innerHTML = `<h2>${item.marque} - ${item.modele}</h2>
-        <ol>${item.procedure.map(p => `<li>${p}</li>`).join("")}</ol>`;
+      div.className = "menu";
+      div.innerHTML = `<h2>${modele.marque} - ${modele.modele}</h2>
+        <ol>${modele.procedure.map(p => `<li>${p}</li>`).join("")}</ol>`;
       content.appendChild(div);
-    });
+    }
+
+    // Afficher l'accueil au démarrage
+    showMarques();
   </script>
 </body>
 </html>
