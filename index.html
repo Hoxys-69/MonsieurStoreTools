@@ -102,15 +102,28 @@
       });
     }
 
-    // Affiche la fiche technique
-    function showFiche(modele) {
-      content.innerHTML = `<div class="back" onclick="showModeles('${modele.marque}')">← Retour</div>`;
-      const div = document.createElement("div");
-      div.className = "menu";
-      div.innerHTML = `<h2>${modele.marque} - ${modele.modele}</h2>
-        <ol>${modele.procedure.map(p => `<li>${p}</li>`).join("")}</ol>`;
-      content.appendChild(div);
-    }
+    // Affiche la liste des guides pour un modèle
+function showGuides(modele) {
+  content.innerHTML = `<div class="back" onclick="showModeles('${modele.marque}')">← Retour</div>`;
+  modele.guides.forEach(guide => {
+    const div = document.createElement("div");
+    div.className = "menu";
+    div.innerText = guide.titre;
+    div.onclick = () => showGuideDetail(modele, guide);
+    content.appendChild(div);
+  });
+}
+
+// Affiche un guide avec ses étapes
+function showGuideDetail(modele, guide) {
+  content.innerHTML = `<div class="back" onclick="showGuides(${JSON.stringify(modele)})">← Retour</div>`;
+  const div = document.createElement("div");
+  div.className = "menu";
+  div.innerHTML = `<h2>${modele.marque} - ${modele.modele}</h2>
+                   <h3>${guide.titre}</h3>
+                   <ol>${guide.etapes.map(e => `<li>${e}</li>`).join("")}</ol>`;
+  content.appendChild(div);
+}
 
     // Afficher l'accueil au démarrage
     showMarques();
