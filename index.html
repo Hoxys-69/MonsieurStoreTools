@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Guide moteur radio</title>
+  <title>Guide Moteur Radio</title>
   <link rel="manifest" href="manifest.json">
   <script>
     if ("serviceWorker" in navigator) {
@@ -167,7 +167,7 @@
       });
     }
 
-    // ⚡ Affichage des étapes uniquement
+    // ⚡ Affichage des étapes avec pictos et couleurs
     function showGuideDetail(modele, guide) {
       content.innerHTML = "";
       content.appendChild(createBackButton(() => showGuides(modele)));
@@ -175,7 +175,29 @@
       const ol = document.createElement("ol");
       (guide.etapes || []).forEach(e => {
         const li = document.createElement("li");
-        li.textContent = e;
+
+        if (e.toLowerCase().includes("couper") || e.toLowerCase().includes("alimentation")) {
+          li.textContent = `⚡ ${e}`;
+          li.style.color = "#ff6600"; // orange
+        } else if (e.toLowerCase().includes("monter")) {
+          li.textContent = `🔼 ${e}`;
+          li.style.color = "#28a745"; // vert
+        } else if (e.toLowerCase().includes("descendre")) {
+          li.textContent = `🔽 ${e}`;
+          li.style.color = "#007bff"; // bleu
+        } else if (e.toLowerCase().includes("pro") || e.toLowerCase().includes("télécommande")) {
+          li.textContent = `🖲️ ${e}`;
+          li.style.color = "#333"; // gris foncé
+        } else if (e.toLowerCase().includes("attention") || e.toLowerCase().includes("remarque")) {
+          li.textContent = `ℹ️ ${e}`;
+          li.style.color = "#6f42c1"; // violet
+        } else {
+          li.textContent = e;
+          li.style.color = "#000";
+        }
+
+        li.style.marginBottom = "10px";
+        li.style.fontWeight = "500";
         ol.appendChild(li);
       });
       content.appendChild(ol);
