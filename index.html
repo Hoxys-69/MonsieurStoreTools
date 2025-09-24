@@ -103,11 +103,7 @@
       throw new Error("data.js non chargé");
     }
 
-    const marques = [
-      "Somfy", "Bubendorff", "Profalux", "SIMU", "Selve", "Nice", 
-      "Becker", "CAME", "Franciaflex", "France Fermetures", "Deprat", 
-      "M4Group", "Marque Blanche", "AOK"
-    ];
+    const marques = [...new Set(data.map(item => item.marque))];
 
     function createBackButton(onClick) {
       const back = document.createElement("div");
@@ -117,6 +113,7 @@
       return back;
     }
 
+    // Page Marques
     function showMarques() {
       content.innerHTML = "";
       marques.forEach(marque => {
@@ -128,11 +125,12 @@
       });
     }
 
+    // Page Modèles
     function showModeles(marque) {
       content.innerHTML = "";
       content.appendChild(createBackButton(showMarques));
       const modeles = data.filter(item => item.marque === marque);
-      if (modeles.length === 0) {
+      if (!modeles.length) {
         const msg = document.createElement("div");
         msg.className = "menu";
         msg.textContent = "Aucun modèle trouvé pour cette marque.";
@@ -148,6 +146,7 @@
       });
     }
 
+    // Page Guides
     function showGuides(modele) {
       content.innerHTML = "";
       content.appendChild(createBackButton(() => showModeles(modele.marque)));
@@ -167,7 +166,7 @@
       });
     }
 
-    // ⚡ Affichage des étapes avec pictos et couleurs
+    // Détail du guide avec pictos et couleurs
     function showGuideDetail(modele, guide) {
       content.innerHTML = "";
       content.appendChild(createBackButton(() => showGuides(modele)));
@@ -203,6 +202,7 @@
       content.appendChild(ol);
     }
 
+    // Lancement de l'accueil
     showMarques();
   </script>
 </body>
