@@ -11,20 +11,87 @@
     }
   </script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f4; color: #333; }
-    header { background: #ff6600; color: white; padding: 15px; text-align: center; }
-    h1 { margin: 0; font-size: 22px; }
-    .container { padding: 20px; }
-    .menu { background: white; margin: 10px 0; padding: 15px; border-radius: 8px;
-           box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; transition: background 0.2s; }
-    .menu:hover { background: #ffe5cc; }
-    .back { display: inline-block; margin-bottom: 15px; padding: 8px 12px; background: #666; color: white;
-           border-radius: 5px; text-decoration: none; cursor: pointer; }
-    ol li { margin-bottom: 8px; }
+    :root {
+      --orange: #ff6600;
+      --gris-fonce: #333;
+      --gris-clair: #f4f4f4;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      background-color: var(--gris-clair);
+      color: var(--gris-fonce);
+    }
+
+    header {
+      background: linear-gradient(90deg, var(--orange), #ff8533);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .menu {
+      background: white;
+      margin: 15px 0;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: transform 0.2s, background 0.3s;
+      display: flex;
+      align-items: center;
+    }
+
+    .menu:hover {
+      transform: scale(1.02);
+      background: #fff0e6;
+    }
+
+    .menu::before {
+      content: "📘";
+      margin-right: 10px;
+    }
+
+    .back {
+      display: inline-block;
+      margin-bottom: 15px;
+      padding: 10px 15px;
+      background: var(--gris-fonce);
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+
+    .back:hover {
+      background: #555;
+    }
+
+    ol li {
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 768px) {
+      header { font-size: 20px; }
+      .menu { font-size: 14px; padding: 15px; }
+      .back { font-size: 14px; padding: 8px 12px; }
+    }
   </style>
 </head>
 <body>
-  <header><h1>⚙️ Guide Volets Roulants</h1></header>
+  <header>⚙️ Guide Volets Roulants</header>
   <div class="container" id="content"></div>
 
   <script src="data.js"></script>
@@ -32,12 +99,15 @@
     const content = document.getElementById("content");
 
     if (typeof data === "undefined") {
-      content.innerHTML = '<div class="menu">Erreur : fichier <code>data.js</code> introuvable ou mal chargé.</div>';
-      console.error("data.js non chargé ou variable `data` manquante.");
+      content.innerHTML = '<div class="menu">Erreur : fichier data.js introuvable.</div>';
       throw new Error("data.js non chargé");
     }
 
-    const marques = [...new Set(data.map(item => item.marque))];
+    const marques = [
+      "Somfy", "Bubendorff", "Profalux", "SIMU", "Selve", "Nice", 
+      "Becker", "CAME", "Franciaflex", "France Fermetures", "Deprat", 
+      "M4Group", "Marque Blanche", "AOK"
+    ];
 
     function createBackButton(onClick) {
       const back = document.createElement("div");
@@ -62,6 +132,13 @@
       content.innerHTML = "";
       content.appendChild(createBackButton(showMarques));
       const modeles = data.filter(item => item.marque === marque);
+      if (modeles.length === 0) {
+        const msg = document.createElement("div");
+        msg.className = "menu";
+        msg.textContent = "Aucun modèle trouvé pour cette marque.";
+        content.appendChild(msg);
+        return;
+      }
       modeles.forEach(modele => {
         const div = document.createElement("div");
         div.className = "menu";
