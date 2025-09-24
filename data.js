@@ -4,35 +4,28 @@ const data = [
     modele: "LT50",
     guides: [
       {
-        titre: "Initialiser avec télécommande",
+        titre: "Initialiser le moteur",
         etapes: [
-          "Appuyer 3 secondes sur le bouton PROG de la télécommande.",
-          "Le moteur fait un va-et-vient.",
-          "La télécommande est maintenant associée."
+          "Couper l'alimentation 2 secondes puis la remettre 8 secondes.",
+          "Le moteur effectue un va-et-vient.",
+          "Associer la télécommande en appuyant sur PROG."
         ]
       },
       {
-        titre: "Régler la fin de course haute",
+        titre: "Réglage des fins de course",
         etapes: [
-          "Monter le volet en position haute désirée.",
-          "Appuyer sur PROG jusqu’au va-et-vient.",
-          "La position haute est mémorisée."
-        ]
-      },
-      {
-        titre: "Régler la fin de course basse",
-        etapes: [
-          "Descendre le volet en position basse désirée.",
-          "Appuyer sur PROG jusqu’au va-et-vient.",
-          "La position basse est mémorisée."
+          "Monter le volet.",
+          "Appuyer sur PROG jusqu'à ce que le moteur fasse un va-et-vient.",
+          "Descendre le volet.",
+          "Appuyer sur PROG jusqu'à ce que le moteur fasse un va-et-vient."
         ]
       },
       {
         titre: "Copier une télécommande",
         etapes: [
-          "Sur la télécommande déjà appairée, appuyer 3 sec sur PROG.",
-          "Puis sur la nouvelle télécommande, appuyer brièvement sur PROG.",
-          "Le moteur fait un va-et-vient, la copie est réussie."
+          "Appuyer 3 secondes sur PROG de la télécommande source.",
+          "Appuyer brièvement sur PROG de la nouvelle télécommande.",
+          "Le moteur effectue un va-et-vient pour indiquer la copie réussie."
         ]
       }
     ]
@@ -42,27 +35,152 @@ const data = [
     modele: "ID2",
     guides: [
       {
-        titre: "Initialiser avec télécommande",
+        titre: "Initialiser le moteur",
         etapes: [
-          "Couper l’alimentation électrique 2 secondes puis remettre 8 secondes, deux fois de suite.",
-          "Le moteur fait un va-et-vient.",
-          "Appuyer sur le bouton de la télécommande pour associer."
+          "Couper l'alimentation 2 secondes puis la remettre 8 secondes.",
+          "Le moteur effectue un va-et-vient.",
+          "Associer la télécommande en appuyant sur PROG."
         ]
       },
       {
-        titre: "Régler la fin de course haute",
+        titre: "Réglage des fins de course",
         etapes: [
-          "Monter le volet à la position haute souhaitée.",
-          "Appuyer simultanément sur montée + descente.",
-          "La position est enregistrée."
+          "Monter le volet.",
+          "Appuyer sur PROG jusqu'à ce que le moteur fasse un va-et-vient.",
+          "Descendre le volet.",
+          "Appuyer sur PROG jusqu'à ce que le moteur fasse un va-et-vient."
         ]
       },
       {
-        titre: "Régler la fin de course basse",
+        titre: "Copier une télécommande",
         etapes: [
-          "Descendre le volet à la position basse souhaitée.",
-          "Appuyer simultanément sur montée + descente.",
-          "La position est enregistrée."
+          "Appuyer 3 secondes sur PROG de la télécommande source.",
+          "Appuyer brièvement sur PROG de la nouvelle télécommande.",
+          "Le moteur effectue un va-et-vient pour indiquer la copie réussie."
+        ]
+      }
+    ]
+  },
+  {
+    marque: "Profalux",
+    modele: "ProBox",
+    guides: [
+      {
+        titre: "Initialiser le moteur",
+        etapes: [
+          "Couper l'alimentation 2 secondes puis la remettre 8 secondes.",
+          "Le moteur effectue un va-et-vient.",
+          "Associer la télécommande en appuyant sur PROG."
+        ]
+      },
+      {
+        titre: "Réglage des fins de course",
+        etapes: [
+          "Monter le volet.",
+          "Appuyer sur PROG jusqu'à ce que le moteur fasse un va-et-vient.",
+          "Descendre le volet.",
+          "Appuyer sur PROG jusqu'à ce que le moteur fasse un va-et-vient."
+        ]
+      },
+      {
+        titre: "Copier une télécommande",
+        etapes: [
+          "Appuyer 3 secondes sur PROG de la télécommande source.",
+          "Appuyer brièvement sur PROG de la nouvelle télécommande.",
+          "Le moteur effectue un va-et-vient pour indiquer la copie réussie."
+        ]
+      }
+    ]
+  },
+  {
+    marque: "SIMU",
+    modele: "Rollia",
+    guides: [
+      {
+        titre: "Initialiser le moteur",
+        etapes: [
+          "Couper l'alimentation 2 secondes puis la remettre 8 secondes.",
+          "Le moteur effectue un va-et-vient.",
+          "Associer la télécommande en appuyant sur PROG."
+        ]
+      },
+      {
+        titre: "Réglage des fins de course",
+        etapes: [
+          "Monter le volet.",
+          "Appuyer sur PROG jusqu'à ce que le moteur fasse un va-et-vient.",
+          "Descendre le volet.",
+          "Appuyer sur PROG jusqu'à ce que le moteur fasse un va-et-vient."
+        ]
+      },
+      {
+        titre: "Copier une télécommande",
+        etapes: [
+          "Appuyer 3 secondes sur PROG de la télécommande source.",
+          "Appuyer brièvement sur PROG de la nouvelle télécommande.",
+          "Le moteur effectue un va-et-vient pour indiquer la copie réussie."
+        ]
+      }
+    ]
+  },
+  {
+    marque: "Selve",
+    modele: "RollerDrive",
+    guides: [
+      {
+        titre: "Initialiser le moteur",
+        etapes: [
+          "Couper l'alimentation 2 secondes puis la remettre 8 secondes.",
+          "Le moteur effectue un va-et-vient.",
+          "Associer la télécommande en appuyant sur PROG."
+        ]
+      },
+      {
+        titre: "Réglage des fins de course",
+        etapes: [
+          "Monter le volet.",
+          "Appuyer sur PROG jusqu'à ce que le moteur fasse un va-et-vient.",
+          "Descendre le volet.",
+          "Appuyer sur PROG jusqu'à ce que le moteur fasse un va-et-vient."
+        ]
+      },
+      {
+        titre: "Copier une télécommande",
+        etapes: [
+          "Appuyer 3 secondes sur PROG de la télécommande source.",
+          "Appuyer brièvement sur PROG de la nouvelle télécommande.",
+          "Le moteur effectue un va-et-vient pour indiquer la copie réussie."
+        ]
+      }
+    ]
+  },
+  {
+    marque: "Nice",
+    modele: "Era",
+    guides: [
+      {
+        titre: "Initialiser le moteur",
+        etapes: [
+          "Couper l'alimentation 2 secondes puis la remettre 8 secondes.",
+          "Le moteur effectue un va-et-vient.",
+          "Associer la télécommande en appuyant sur PROG."
+        ]
+      },
+      {
+        titre: "Réglage des fins de course",
+        etapes: [
+          "Monter le volet.",
+          "Appuyer sur PROG jusqu'à ce que le moteur fasse un va-et-vient.",
+          "Descendre le volet.",
+          "Appuyer sur PROG jusqu'à ce que le moteur fasse un va-et-vient."
+        ]
+      },
+      {
+        titre: "Copier une télécommande",
+        etapes: [
+          "Appuyer 3 secondes sur PROG de la télécommande source.",
+          "Appuyer brièvement sur PROG de la nouvelle télécommande.",
+          "Le moteur effectue un va-et-vient pour indiquer la copie réussie."
         ]
       }
     ]
