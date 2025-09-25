@@ -3,207 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Guide Moteur Radio</title>
-  <link rel="manifest" href="manifest.json">
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js").catch(e => console.warn("SW register failed:", e));
-    }
-  </script>
+  <title>Guide moteurs</title>
   <style>
-    :root {
-      --orange: #ff6600;
-      --gris-fonce: #333;
-      --gris-clair: #f4f4f4;
-    }
-
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      margin: 0;
-      background-color: var(--gris-clair);
-      color: var(--gris-fonce);
-    }
-
-    header {
-      background: linear-gradient(90deg, var(--orange), #ff8533);
-      color: white;
-      padding: 20px;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-
-    .container {
-      padding: 20px;
-    }
-
-    .menu {
-      background: white;
-      margin: 15px 0;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-      cursor: pointer;
-      transition: transform 0.2s, background 0.3s;
-      display: flex;
-      align-items: center;
-    }
-
-    .menu:hover {
-      transform: scale(1.02);
-      background: #fff0e6;
-    }
-
-    .menu::before {
-      content: "📘";
-      margin-right: 10px;
-    }
-
-    .back {
-      display: inline-block;
-      margin-bottom: 15px;
-      padding: 10px 15px;
-      background: var(--gris-fonce);
-      color: white;
-      border-radius: 8px;
-      text-decoration: none;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.2s;
-    }
-
-    .back:hover {
-      background: #555;
-    }
-
-    ol li {
-      margin-bottom: 8px;
-    }
-
-    @media (max-width: 768px) {
-      header { font-size: 20px; }
-      .menu { font-size: 14px; padding: 15px; }
-      .back { font-size: 14px; padding: 8px 12px; }
-    }
+    body { font-family: Arial, sans-serif; margin:0; background:#f4f4f4; color:#333; }
+    header { background:#ff6600; color:white; padding:15px; text-align:center; font-size:22px; }
+    .container { padding:20px; }
+    .menu { background:white; margin:10px 0; padding:15px; border-radius:8px;
+            box-shadow:0 2px 5px rgba(0,0,0,0.1); cursor:pointer; transition:0.2s; }
+    .menu:hover { background:#ffe5cc; }
+    .back { display:inline-block; margin-bottom:15px; padding:8px 12px;
+            background:#666; color:white; border-radius:5px; cursor:pointer; }
+    #searchBar { width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; margin-bottom:15px; }
   </style>
 </head>
 <body>
-  <header>⚙️ Guide Moteur Radio</header>
-  <div class="container" id="content"></div>
+  <header>⚙️ Guide Moteurs</header>
+  <div class="container">
+    <input type="text" id="searchBar" placeholder="🔍 Rechercher un moteur...">
+    <div id="content"></div>
+  </div>
 
   <script src="data.js"></script>
   <script>
     const content = document.getElementById("content");
+    const searchBar = document.getElementById("searchBar");
 
-    if (typeof data === "undefined") {
-      content.innerHTML = '<div class="menu">Erreur : fichier data.js introuvable.</div>';
-      throw new Error("data.js non chargé");
-    }
-
-    const marques = [...new Set(data.map(item => item.marque))];
-
-    function createBackButton(onClick) {
-      const back = document.createElement("div");
-      back.className = "back";
-      back.textContent = "← Retour";
-      back.addEventListener("click", onClick);
-      return back;
-    }
-
-    // Page Marques
-    function showMarques() {
+    // Affiche tous les moteurs (marque + modèle)
+    function showAllMotors(filter = "") {
       content.innerHTML = "";
-      marques.forEach(marque => {
-        const div = document.createElement("div");
-        div.className = "menu";
-        div.textContent = marque;
-        div.addEventListener("click", () => showModeles(marque));
-        content.appendChild(div);
-      });
-    }
+      const filtered = data.filter(item =>
+        (item.marque + " " + item.modele).toLowerCase().includes(filter.toLowerCase())
+      );
 
-    // Page Modèles
-    function showModeles(marque) {
-      content.innerHTML = "";
-      content.appendChild(createBackButton(showMarques));
-      const modeles = data.filter(item => item.marque === marque);
-      if (!modeles.length) {
-        const msg = document.createElement("div");
-        msg.className = "menu";
-        msg.textContent = "Aucun modèle trouvé pour cette marque.";
-        content.appendChild(msg);
+      if (filtered.length === 0) {
+        content.innerHTML = "<div class='menu'>Aucun résultat trouvé</div>";
         return;
       }
-      modeles.forEach(modele => {
+
+      filtered.forEach(motor => {
         const div = document.createElement("div");
         div.className = "menu";
-        div.textContent = modele.modele;
-        div.addEventListener("click", () => showGuides(modele));
+        div.textContent = motor.marque + " - " + motor.modele;
+        div.onclick = () => showGuides(motor);
         content.appendChild(div);
       });
     }
 
-    // Page Guides
+    // Page guides
     function showGuides(modele) {
-      content.innerHTML = "";
-      content.appendChild(createBackButton(() => showModeles(modele.marque)));
-      if (!Array.isArray(modele.guides) || modele.guides.length === 0) {
-        const msg = document.createElement("div");
-        msg.className = "menu";
-        msg.textContent = "Aucun guide disponible pour ce modèle.";
-        content.appendChild(msg);
-        return;
-      }
+      content.innerHTML = `<div class="back" onclick="showAllMotors(searchBar.value)">← Retour</div>`;
       modele.guides.forEach(guide => {
         const div = document.createElement("div");
         div.className = "menu";
         div.textContent = guide.titre;
-        div.addEventListener("click", () => showGuideDetail(modele, guide));
+        div.onclick = () => showGuideDetail(modele, guide);
         content.appendChild(div);
       });
     }
 
-    // Détail du guide avec pictos et couleurs
+    // Page détails guide
     function showGuideDetail(modele, guide) {
-      content.innerHTML = "";
-      content.appendChild(createBackButton(() => showGuides(modele)));
-
-      const ol = document.createElement("ol");
-      (guide.etapes || []).forEach(e => {
-        const li = document.createElement("li");
-
-        if (e.toLowerCase().includes("couper") || e.toLowerCase().includes("alimentation")) {
-          li.textContent = `⚡ ${e}`;
-          li.style.color = "#ff6600"; // orange
-        } else if (e.toLowerCase().includes("monter")) {
-          li.textContent = `🔼 ${e}`;
-          li.style.color = "#28a745"; // vert
-        } else if (e.toLowerCase().includes("descendre")) {
-          li.textContent = `🔽 ${e}`;
-          li.style.color = "#007bff"; // bleu
-        } else if (e.toLowerCase().includes("pro") || e.toLowerCase().includes("télécommande")) {
-          li.textContent = `🖲️ ${e}`;
-          li.style.color = "#333"; // gris foncé
-        } else if (e.toLowerCase().includes("attention") || e.toLowerCase().includes("remarque")) {
-          li.textContent = `ℹ️ ${e}`;
-          li.style.color = "#6f42c1"; // violet
-        } else {
-          li.textContent = e;
-          li.style.color = "#000";
-        }
-
-        li.style.marginBottom = "10px";
-        li.style.fontWeight = "500";
-        ol.appendChild(li);
-      });
-      content.appendChild(ol);
+      content.innerHTML = `<div class="back" onclick="showGuides(data.find(m => m.marque === '${modele.marque}' && m.modele === '${modele.modele}'))">← Retour</div>`;
+      const div = document.createElement("div");
+      div.className = "menu";
+      div.innerHTML = `<h3>${guide.titre}</h3>
+                       <ol>${guide.etapes.map(e => `<li>${e}</li>`).join("")}</ol>`;
+      content.appendChild(div);
     }
 
-    // Lancement de l'accueil
-    showMarques();
+    // Recherche dynamique
+    searchBar.addEventListener("input", () => {
+      showAllMotors(searchBar.value);
+    });
+
+    // Chargement initial
+    showAllMotors();
   </script>
 </body>
 </html>
