@@ -5,45 +5,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Guide moteurs</title>
   <style>
-    body { font-family: Arial, sans-serif; margin:0; background:#f4f4f4; color:#333; }
-    header { background:#ff6600; color:white; padding:15px; text-align:center; font-size:22px; }
-    .container { padding:20px; }
-    .menu { background:white; margin:10px 0; padding:15px; border-radius:8px;
-            box-shadow:0 2px 5px rgba(0,0,0,0.1); cursor:pointer; transition:0.2s; }
-    .menu:hover { background:#ffe5cc; }
-    .back { display:inline-block; margin-bottom:15px; padding:8px 12px;
-            background:#666; color:white; border-radius:5px; cursor:pointer; }
-    #searchBar { 
-      width:100%; 
-      padding:12px; 
-      border:2px solid #ff6600; 
-      border-radius:8px; 
-      font-size:16px; 
-      margin-bottom:15px;
-      box-sizing:border-box;
+    :root {
+      --orange: #ff6600;
+      --orange-light: #ff8533;
+      --gris-fonce: #2c2c2c;
+      --gris-clair: #f4f4f4;
+      --card-bg: #fff;
     }
-    button { margin-top:10px; padding:8px 12px; border:none; background:#ff6600; color:white; border-radius:5px; cursor:pointer; }
+
+    /* Mode sombre auto */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --gris-fonce: #f4f4f4;
+        --gris-clair: #1e1e1e;
+        --card-bg: #2c2c2c;
+      }
+      body { background: var(--gris-clair); color: var(--gris-fonce); }
+      header { background: linear-gradient(90deg, #e65c00, #ff6600); }
+      .menu { background: #2c2c2c; color: #f4f4f4; }
+      .menu:hover { background: #333; }
+      #searchBar { background: #2c2c2c; color: #f4f4f4; border-color: var(--orange); }
+    }
+
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin:0; background: var(--gris-clair); color: var(--gris-fonce); }
+    header { background: linear-gradient(90deg, var(--orange), var(--orange-light)); color: white; padding:20px; text-align:center; font-size:22px; font-weight:bold; position: sticky; top: 0; z-index: 100; }
+    .container { padding:20px; max-width: 800px; margin:auto; }
+    .menu { background: var(--card-bg); margin:12px 0; padding:18px; border-radius:12px; box-shadow:0 4px 8px rgba(0,0,0,0.12); cursor:pointer; transition: all 0.2s ease; display:flex; align-items:center; font-size:16px; font-weight:500; }
+    .menu:hover { transform: translateY(-2px); background:#fff7f0; }
+    .menu::before { content:"📘"; margin-right:10px; font-size:18px; }
+    .back { display:inline-block; margin-bottom:15px; padding:10px 15px; background:#666; color:white; border-radius:8px; cursor:pointer; font-weight:bold; transition: background 0.2s; }
+    .back:hover { background:#444; }
+    #searchBar { width:100%; padding:12px; border:2px solid var(--orange); border-radius:10px; font-size:16px; margin-bottom:15px; box-sizing:border-box; }
+    ol li { margin-bottom:8px; }
+    button { margin-top:10px; padding:10px 15px; border:none; background:var(--orange); color:white; border-radius:8px; cursor:pointer; font-weight:500; }
     button:hover { background:#e65c00; }
-    .expert { margin-top:15px; padding:10px; border:1px dashed #ff6600; background:#fff7f0; }
+    .expert { margin-top:15px; padding:12px; border:1px dashed var(--orange); background:#fff7f0; border-radius:8px; }
   </style>
 </head>
 <body>
-  <header>⚙️ Guide Moteurs</header>
+  <header>⚙️ Guide moteurs</header>
   <div class="container">
-    <!-- Barre de recherche -->
-    <input type="text" id="searchBar" placeholder="🔍 Rechercher un modèle (ex: Oximo, RS100, Rolmotion...)">
+    <input type="text" id="searchBar" placeholder="🔍 Rechercher un modèle ou une marque...">
     <div id="content"></div>
   </div>
 
-  <!-- Ton fichier data -->
-  <script src="data.js"></script>
+  <script src="data_full.js"></script>
   <script>
     const content = document.getElementById("content");
     const searchBar = document.getElementById("searchBar");
-
     const marques = [...new Set(data.map(item => item.marque))];
 
-    // Page d’accueil → Marques
     function showMarques() {
       content.innerHTML = "";
       marques.forEach(marque => {
@@ -55,7 +66,6 @@
       });
     }
 
-    // Page modèles d'une marque
     function showModeles(marque) {
       content.innerHTML = `<div class="back" onclick="showMarques()">← Retour</div>`;
       const modeles = data.filter(item => item.marque === marque);
@@ -68,7 +78,6 @@
       });
     }
 
-    // Page guides d’un modèle
     function showGuides(modele) {
       content.innerHTML = `<div class="back" onclick="showModeles('${modele.marque}')">← Retour</div>`;
       modele.guides.forEach(guide => {
@@ -80,15 +89,12 @@
       });
     }
 
-    // Page détails d’un guide avec mode expert
     function showGuideDetail(modele, guide) {
       content.innerHTML = `<div class="back" onclick="showGuides(data.find(m => m.marque === '${modele.marque}' && m.modele === '${modele.modele}'))">← Retour</div>`;
       const div = document.createElement("div");
       div.className = "menu";
       div.innerHTML = `<h3>${guide.titre}</h3>
                        <ol>${guide.etapes.map(e => `<li>${e}</li>`).join("")}</ol>`;
-
-      // Bouton expert si données présentes
       if (guide.expert) {
         const btn = document.createElement("button");
         btn.textContent = "👷 Mode Expert";
@@ -101,25 +107,15 @@
         };
         div.appendChild(btn);
       }
-
       content.appendChild(div);
     }
 
-    // Recherche rapide
     searchBar.addEventListener("input", () => {
       const query = searchBar.value.trim().toLowerCase();
-      if (query === "") {
-        showMarques();
-        return;
-      }
+      if (query === "") { showMarques(); return; }
       content.innerHTML = "";
-      const filtered = data.filter(item =>
-        (item.marque + " " + item.modele).toLowerCase().includes(query)
-      );
-      if (filtered.length === 0) {
-        content.innerHTML = "<div class='menu'>Aucun résultat trouvé</div>";
-        return;
-      }
+      const filtered = data.filter(item => (item.marque + " " + item.modele).toLowerCase().includes(query));
+      if (filtered.length === 0) { content.innerHTML = "<div class='menu'>Aucun résultat trouvé</div>"; return; }
       filtered.forEach(motor => {
         const div = document.createElement("div");
         div.className = "menu";
@@ -129,7 +125,6 @@
       });
     });
 
-    // Démarrage
     showMarques();
   </script>
 </body>
