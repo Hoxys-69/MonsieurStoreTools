@@ -22,23 +22,28 @@
       margin-bottom:15px;
       box-sizing:border-box;
     }
+    button { margin-top:10px; padding:8px 12px; border:none; background:#ff6600; color:white; border-radius:5px; cursor:pointer; }
+    button:hover { background:#e65c00; }
+    .expert { margin-top:15px; padding:10px; border:1px dashed #ff6600; background:#fff7f0; }
   </style>
 </head>
 <body>
   <header>⚙️ Guide Moteurs</header>
   <div class="container">
+    <!-- Barre de recherche -->
     <input type="text" id="searchBar" placeholder="🔍 Rechercher un modèle (ex: Oximo, RS100, Rolmotion...)">
     <div id="content"></div>
   </div>
 
-  <script src="data.js"></script>
+  <!-- Ton fichier data -->
+  <script src="data_full.js"></script>
   <script>
     const content = document.getElementById("content");
     const searchBar = document.getElementById("searchBar");
 
     const marques = [...new Set(data.map(item => item.marque))];
 
-    // Page d’accueil (liste des marques)
+    // Page d’accueil → Marques
     function showMarques() {
       content.innerHTML = "";
       marques.forEach(marque => {
@@ -50,7 +55,7 @@
       });
     }
 
-    // Page modèles par marque
+    // Page modèles d'une marque
     function showModeles(marque) {
       content.innerHTML = `<div class="back" onclick="showMarques()">← Retour</div>`;
       const modeles = data.filter(item => item.marque === marque);
@@ -75,13 +80,28 @@
       });
     }
 
-    // Page détail d’un guide
+    // Page détails d’un guide avec mode expert
     function showGuideDetail(modele, guide) {
       content.innerHTML = `<div class="back" onclick="showGuides(data.find(m => m.marque === '${modele.marque}' && m.modele === '${modele.modele}'))">← Retour</div>`;
       const div = document.createElement("div");
       div.className = "menu";
       div.innerHTML = `<h3>${guide.titre}</h3>
                        <ol>${guide.etapes.map(e => `<li>${e}</li>`).join("")}</ol>`;
+
+      // Bouton expert si données présentes
+      if (guide.expert) {
+        const btn = document.createElement("button");
+        btn.textContent = "👷 Mode Expert";
+        btn.onclick = () => {
+          const exp = document.createElement("div");
+          exp.className = "expert";
+          exp.innerHTML = `<h4>Infos techniques</h4><ul>${guide.expert.map(e => `<li>${e}</li>`).join("")}</ul>`;
+          div.appendChild(exp);
+          btn.remove();
+        };
+        div.appendChild(btn);
+      }
+
       content.appendChild(div);
     }
 
@@ -89,20 +109,17 @@
     searchBar.addEventListener("input", () => {
       const query = searchBar.value.trim().toLowerCase();
       if (query === "") {
-        showMarques(); // retour navigation normale
+        showMarques();
         return;
       }
-
       content.innerHTML = "";
       const filtered = data.filter(item =>
         (item.marque + " " + item.modele).toLowerCase().includes(query)
       );
-
       if (filtered.length === 0) {
         content.innerHTML = "<div class='menu'>Aucun résultat trouvé</div>";
         return;
       }
-
       filtered.forEach(motor => {
         const div = document.createElement("div");
         div.className = "menu";
@@ -112,7 +129,7 @@
       });
     });
 
-    // Démarrage → navigation par marques
+    // Démarrage
     showMarques();
   </script>
 </body>
