@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Guide moteurs & domotique</title>
+  <title>Guide moteurs et automates</title>
   <style>
     body { font-family: Arial, sans-serif; margin:0; background:#f4f4f4; color:#333; }
     header { background:#ff6600; color:white; padding:15px; text-align:center; font-size:22px; }
@@ -28,33 +28,33 @@
   </style>
 </head>
 <body>
-  <header>⚙️ Guide moteurs & domotique</header>
+  <header>⚙️ Guide Moteurs & Automates</header>
   <div class="container">
     <!-- Barre de recherche -->
     <input type="text" id="searchBar" placeholder="🔍 Rechercher un modèle (ex: Oximo, RS100, Rolmotion...)">
     <div id="content"></div>
   </div>
 
-  <!-- Ton fichier data -->
+  <!-- Ton fichier data.js -->
   <script src="data.js"></script>
   <script>
     const content = document.getElementById("content");
     const searchBar = document.getElementById("searchBar");
 
-    // Page d’accueil → Catégories
+    // Page d’accueil → Catégories (moteurs / automates)
     function showCategories() {
       content.innerHTML = "";
-      const categories = ["Moteurs", "Domotique"];
+      const categories = [...new Set(data.map(item => item.categorie))];
       categories.forEach(cat => {
         const div = document.createElement("div");
         div.className = "menu";
-        div.textContent = cat;
+        div.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
         div.onclick = () => showMarques(cat);
         content.appendChild(div);
       });
     }
 
-    // Page marques selon catégorie
+    // Page marques d’une catégorie
     function showMarques(categorie) {
       content.innerHTML = `<div class="back" onclick="showCategories()">← Retour</div>`;
       const marques = [...new Set(data.filter(item => item.categorie === categorie).map(item => item.marque))];
@@ -67,10 +67,10 @@
       });
     }
 
-    // Page modèles d'une marque
+    // Page modèles d’une marque
     function showModeles(categorie, marque) {
       content.innerHTML = `<div class="back" onclick="showMarques('${categorie}')">← Retour</div>`;
-      const modeles = data.filter(item => item.marque === marque && item.categorie === categorie);
+      const modeles = data.filter(item => item.categorie === categorie && item.marque === marque);
       modeles.forEach(modele => {
         const div = document.createElement("div");
         div.className = "menu";
@@ -82,7 +82,7 @@
 
     // Page guides d’un modèle
     function showGuides(categorie, modele) {
-      content.innerHTML = `<div class="back" onclick="showModeles('${categorie}','${modele.marque}')">← Retour</div>`;
+      content.innerHTML = `<div class="back" onclick="showModeles('${categorie}', '${modele.marque}')">← Retour</div>`;
       modele.guides.forEach(guide => {
         const div = document.createElement("div");
         div.className = "menu";
@@ -92,9 +92,9 @@
       });
     }
 
-    // Page détails d’un guide avec mode expert
+    // Page détails d’un guide
     function showGuideDetail(categorie, modele, guide) {
-      content.innerHTML = `<div class="back" onclick="showGuides('${categorie}', data.find(m => m.marque === '${modele.marque}' && m.modele === '${modele.modele}'))">← Retour</div>`;
+      content.innerHTML = `<div class="back" onclick="showGuides('${categorie}', getModele('${categorie}', '${modele.marque}', '${modele.modele}'))">← Retour</div>`;
       const div = document.createElement("div");
       div.className = "menu";
       div.innerHTML = `<h3>${guide.titre}</h3>
@@ -114,6 +114,11 @@
       }
 
       content.appendChild(div);
+    }
+
+    // Utilitaire pour retrouver un modèle précis
+    function getModele(categorie, marque, modele) {
+      return data.find(m => m.categorie === categorie && m.marque === marque && m.modele === modele);
     }
 
     // Recherche rapide
