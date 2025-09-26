@@ -38,60 +38,69 @@
   <!-- Ton fichier data.js -->
   <script src="data.js"></script>
   <script>
-    // Fusion des moteurs + automates
-    const allData = [...data.moteurs, ...data.automates];
-
     const content = document.getElementById("content");
     const searchBar = document.getElementById("searchBar");
 
-    const marques = [...new Set(allData.map(item => item.marque))];
-
-    // Page d’accueil → Marques
-    function showMarques() {
+    // 1️⃣ Page d’accueil → Catégories
+    function showCategories() {
       content.innerHTML = "";
+      const categories = Object.keys(data); // ["moteurs", "automates"]
+      categories.forEach(cat => {
+        const div = document.createElement("div");
+        div.className = "menu";
+        div.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+        div.onclick = () => showMarques(cat);
+        content.appendChild(div);
+      });
+    }
+
+    // 2️⃣ Marques d’une catégorie
+    function showMarques(category) {
+      content.innerHTML = `<div class="back" onclick="showCategories()">← Retour</div>`;
+      const items = data[category];
+      const marques = [...new Set(items.map(item => item.marque))];
       marques.forEach(marque => {
         const div = document.createElement("div");
         div.className = "menu";
         div.textContent = marque;
-        div.onclick = () => showModeles(marque);
+        div.onclick = () => showModeles(category, marque);
         content.appendChild(div);
       });
     }
 
-    // Page modèles d'une marque
-    function showModeles(marque) {
-      content.innerHTML = `<div class="back" onclick="showMarques()">← Retour</div>`;
-      const modeles = allData.filter(item => item.marque === marque);
+    // 3️⃣ Modèles d’une marque
+    function showModeles(category, marque) {
+      content.innerHTML = `<div class="back" onclick="showMarques('${category}')">← Retour</div>`;
+      const modeles = data[category].filter(item => item.marque === marque);
       modeles.forEach(modele => {
         const div = document.createElement("div");
         div.className = "menu";
         div.textContent = modele.modele;
-        div.onclick = () => showGuides(modele);
+        div.onclick = () => showGuides(category, modele);
         content.appendChild(div);
       });
     }
 
-    // Page guides d’un modèle
-    function showGuides(modele) {
-      content.innerHTML = `<div class="back" onclick="showModeles('${modele.marque}')">← Retour</div>`;
+    // 4️⃣ Guides d’un modèle
+    function showGuides(category, modele) {
+      content.innerHTML = `<div class="back" onclick="showModeles('${category}', '${modele.marque}')">← Retour</div>`;
       modele.guides.forEach(guide => {
         const div = document.createElement("div");
         div.className = "menu";
         div.textContent = guide.titre;
-        div.onclick = () => showGuideDetail(modele, guide);
+        div.onclick = () => showGuideDetail(category, modele, guide);
         content.appendChild(div);
       });
     }
 
-    // Page détails d’un guide avec mode expert
-    function showGuideDetail(modele, guide) {
-      content.innerHTML = `<div class="back" onclick="showGuides(allData.find(m => m.marque === '${modele.marque}' && m.modele === '${modele.modele}'))">← Retour</div>`;
+    // 5️⃣ Détail d’un guide + mode expert
+    function showGuideDetail(category, modele, guide) {
+      content.innerHTML = `<div class="back" onclick="showGuides('${category}', data['${category}'].find(m => m.marque === '${modele.marque}' && m.modele === '${modele.modele}'))">← Retour</div>`;
       const div = document.createElement("div");
       div.className = "menu";
       div.innerHTML = `<h3>${guide.titre}</h3>
                        <ol>${guide.etapes.map(e => `<li>${e}</li>`).join("")}</ol>`;
 
-      // Bouton expert si données présentes
       if (guide.expert) {
         const btn = document.createElement("button");
         btn.textContent = "👷 Mode Expert";
@@ -108,14 +117,15 @@
       content.appendChild(div);
     }
 
-    // Recherche rapide
+    // 🔍 Recherche rapide (dans toutes catégories)
     searchBar.addEventListener("input", () => {
       const query = searchBar.value.trim().toLowerCase();
       if (query === "") {
-        showMarques();
+        showCategories();
         return;
       }
       content.innerHTML = "";
+      const allData = [...data.moteurs, ...data.automates];
       const filtered = allData.filter(item =>
         (item.marque + " " + item.modele).toLowerCase().includes(query)
       );
@@ -127,13 +137,13 @@
         const div = document.createElement("div");
         div.className = "menu";
         div.textContent = motor.marque + " - " + motor.modele;
-        div.onclick = () => showGuides(motor);
+        div.onclick = () => showGuides(motor.category || "moteurs", motor);
         content.appendChild(div);
       });
     });
 
-    // Démarrage
-    showMarques();
+    // 🚀 Démarrage
+    showCategories();
   </script>
 </body>
 </html>
