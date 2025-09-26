@@ -20,14 +20,25 @@
         --gris-clair: #1e1e1e;   /* fond sombre */
         --card-bg: #2c2c2c;      /* cartes sombres */
       }
+
       body { background: var(--gris-clair); color: var(--gris-fonce); }
       header { background: linear-gradient(90deg, #e65c00, #ff6600); }
-      .menu { background: var(--card-bg); color: var(--gris-fonce); }
+
+      /* 🔥 Correction : forcer la couleur du texte dans les guides */
+      .menu, 
+      .menu h3, 
+      .menu h4, 
+      .menu li, 
+      .menu ol, 
+      .menu ul { 
+        color: var(--gris-fonce) !important; 
+      }
+
       .menu:hover { background: #333; }
       #searchBar { background: #2c2c2c; color: var(--gris-fonce); border-color: var(--orange); }
-      ol li { color: var(--gris-fonce); }
-      h3, h4 { color: var(--orange); }
-      .expert { background:#2c2c2c; border:1px dashed var(--orange); color:var(--gris-fonce); }
+
+      h3, h4 { color: var(--orange) !important; }
+      .expert { background:#2c2c2c; border:1px dashed var(--orange); color:var(--gris-fonce) !important; }
     }
 
     body { font-family: 'Segoe UI', Arial, sans-serif; margin:0; background: var(--gris-clair); color: var(--gris-fonce); }
@@ -52,7 +63,7 @@
     <div id="content"></div>
   </div>
 
-  <script src="data.js"></script>
+  <script src="data_full.js"></script>
   <script>
     const content = document.getElementById("content");
     const searchBar = document.getElementById("searchBar");
