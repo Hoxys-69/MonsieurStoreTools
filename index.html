@@ -22,22 +22,19 @@
       margin-bottom:15px;
       box-sizing:border-box;
     }
-    button { margin-top:10px; padding:8px 12px; border:none; background:#ff6600; color:white; border-radius:5px; cursor:pointer; }
-    button:hover { background:#e65c00; }
     .expert { margin-top:15px; padding:10px; border:1px dashed #ff6600; background:#fff7f0; }
-    .breadcrumb { font-size:14px; margin-bottom:15px; }
-    .breadcrumb span { color:#666; }
-    .breadcrumb a { color:#ff6600; cursor:pointer; text-decoration:none; }
-    .breadcrumb a:hover { text-decoration:underline; }
+    #breadcrumb { margin-bottom:15px; font-size:14px; color:#555; }
+    #breadcrumb span { cursor:pointer; color:#ff6600; }
+    #breadcrumb span:hover { text-decoration:underline; }
   </style>
 </head>
 <body>
   <header>⚙️ Guide Moteurs & Automates</header>
   <div class="container">
     <!-- Barre de recherche -->
-    <input type="text" id="searchBar" placeholder="🔍 Rechercher un modèle (ex: Oximo, RS100, Rolmotion, TaHoma...)">
+    <input type="text" id="searchBar" placeholder="🔍 Rechercher un modèle (ex: Oximo, RS100, Tahoma...)">
     <!-- Fil d’Ariane -->
-    <div id="breadcrumb" class="breadcrumb"></div>
+    <div id="breadcrumb"></div>
     <div id="content"></div>
   </div>
 
@@ -48,26 +45,34 @@
     const searchBar = document.getElementById("searchBar");
     const breadcrumb = document.getElementById("breadcrumb");
 
-    let navPath = []; // Pour stocker la navigation
+    let currentPath = [];
 
+    // === Mise à jour fil d’Ariane ===
     function updateBreadcrumb() {
-      breadcrumb.innerHTML = navPath.map((item, index) => {
-        if (index === navPath.length - 1) {
-          return `<span>${item.label}</span>`; // Dernier élément = texte simple
-        } else {
-          return `<a onclick="${item.action}">${item.label}</a> > `;
-        }
-      }).join("");
+      breadcrumb.innerHTML = currentPath.map((step, index) => {
+        return `<span onclick="goTo(${index})">${step}</span>`;
+      }).join(" ➝ ");
     }
 
-    // 1️⃣ Page d’accueil → Catégories
-    function showCategories() {
-      navPath = [{ label: "Catégories", action: "showCategories()" }];
-      updateBreadcrumb();
+    function goTo(index) {
+      if (index === 0) showCategories();
+      if (index === 1) showMarques(currentPath[0].toLowerCase());
+      if (index === 2) showModeles(currentPath[0].toLowerCase(), currentPath[1]);
+      if (index === 3) {
+        const category = currentPath[0].toLowerCase();
+        const marque = currentPath[1];
+        const modele = currentPath[2];
+        const item = data[category].find(m => m.marque === marque && m.modele === modele);
+        showGuides(item);
+      }
+    }
 
+    // === Page 1 : Catégories ===
+    function showCategories() {
+      currentPath = [];
+      updateBreadcrumb();
       content.innerHTML = "";
-      const categories = Object.keys(data);
-      categories.forEach(cat => {
+      ["moteurs", "automates"].forEach(cat => {
         const div = document.createElement("div");
         div.className = "menu";
         div.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
@@ -76,17 +81,12 @@
       });
     }
 
-    // 2️⃣ Marques
+    // === Page 2 : Marques ===
     function showMarques(category) {
-      navPath = [
-        { label: "Catégories", action: "showCategories()" },
-        { label: category, action: `showMarques('${category}')` }
-      ];
+      currentPath = [category.charAt(0).toUpperCase() + category.slice(1)];
       updateBreadcrumb();
-
-      content.innerHTML = "";
-      const items = data[category];
-      const marques = [...new Set(items.map(item => item.marque))];
+      content.innerHTML = `<div class="back" onclick="showCategories()">← Retour</div>`;
+      const marques = [...new Set(data[category].map(item => item.marque))];
       marques.forEach(marque => {
         const div = document.createElement("div");
         div.className = "menu";
@@ -96,63 +96,44 @@
       });
     }
 
-    // 3️⃣ Modèles
+    // === Page 3 : Modèles ===
     function showModeles(category, marque) {
-      navPath = [
-        { label: "Catégories", action: "showCategories()" },
-        { label: category, action: `showMarques('${category}')` },
-        { label: marque, action: `showModeles('${category}', '${marque}')` }
-      ];
+      currentPath = [category.charAt(0).toUpperCase() + category.slice(1), marque];
       updateBreadcrumb();
-
-      content.innerHTML = "";
+      content.innerHTML = `<div class="back" onclick="showMarques('${category}')">← Retour</div>`;
       const modeles = data[category].filter(item => item.marque === marque);
       modeles.forEach(modele => {
         const div = document.createElement("div");
         div.className = "menu";
         div.textContent = modele.modele;
-        div.onclick = () => showGuides(category, modele);
+        div.onclick = () => showGuides(modele);
         content.appendChild(div);
       });
     }
 
-    // 4️⃣ Guides
-    function showGuides(category, modele) {
-      navPath = [
-        { label: "Catégories", action: "showCategories()" },
-        { label: category, action: `showMarques('${category}')` },
-        { label: modele.marque, action: `showModeles('${category}', '${modele.marque}')` },
-        { label: modele.modele, action: `showGuides('${category}', data['${category}'].find(m => m.marque === '${modele.marque}' && m.modele === '${modele.modele}'))` }
-      ];
+    // === Page 4 : Guides ===
+    function showGuides(modele) {
+      currentPath = [currentPath[0], currentPath[1], modele.modele];
       updateBreadcrumb();
-
-      content.innerHTML = "";
+      content.innerHTML = `<div class="back" onclick="showModeles('${currentPath[0].toLowerCase()}', '${currentPath[1]}')">← Retour</div>`;
       modele.guides.forEach(guide => {
         const div = document.createElement("div");
         div.className = "menu";
         div.textContent = guide.titre;
-        div.onclick = () => showGuideDetail(category, modele, guide);
+        div.onclick = () => showGuideDetail(modele, guide);
         content.appendChild(div);
       });
     }
 
-    // 5️⃣ Détails
-    function showGuideDetail(category, modele, guide) {
-      navPath = [
-        { label: "Catégories", action: "showCategories()" },
-        { label: category, action: `showMarques('${category}')` },
-        { label: modele.marque, action: `showModeles('${category}', '${modele.marque}')` },
-        { label: modele.modele, action: `showGuides('${category}', data['${category}'].find(m => m.marque === '${modele.marque}' && m.modele === '${modele.modele}'))` },
-        { label: guide.titre, action: "" }
-      ];
+    // === Page 5 : Détail d’un guide ===
+    function showGuideDetail(modele, guide) {
+      currentPath = [currentPath[0], currentPath[1], modele.modele, guide.titre];
       updateBreadcrumb();
-
-      content.innerHTML = "";
+      content.innerHTML = `<div class="back" onclick="showGuides(data[currentPath[0].toLowerCase()].find(m => m.marque === '${modele.marque}' && m.modele === '${modele.modele}'))">← Retour</div>`;
       const div = document.createElement("div");
       div.className = "menu";
       div.innerHTML = `<h3>${guide.titre}</h3>
                        <ol>${guide.etapes.map(e => `<li>${e}</li>`).join("")}</ol>`;
-
       if (guide.expert) {
         const btn = document.createElement("button");
         btn.textContent = "👷 Mode Expert";
@@ -165,11 +146,10 @@
         };
         div.appendChild(btn);
       }
-
       content.appendChild(div);
     }
 
-    // 🔍 Recherche
+    // === Recherche rapide ===
     searchBar.addEventListener("input", () => {
       const query = searchBar.value.trim().toLowerCase();
       if (query === "") {
@@ -177,26 +157,28 @@
         return;
       }
       content.innerHTML = "";
-      const allData = [...data.moteurs, ...data.automates];
-      const filtered = allData.filter(item =>
-        (item.marque + " " + item.modele).toLowerCase().includes(query)
-      );
-      if (filtered.length === 0) {
+      let results = [];
+      ["moteurs", "automates"].forEach(cat => {
+        results = results.concat(
+          data[cat].filter(item =>
+            (item.marque + " " + item.modele).toLowerCase().includes(query)
+          ).map(r => ({...r, category: cat}))
+        );
+      });
+      if (results.length === 0) {
         content.innerHTML = "<div class='menu'>Aucun résultat trouvé</div>";
         return;
       }
-      navPath = [{ label: "Recherche", action: "showCategories()" }];
-      updateBreadcrumb();
-      filtered.forEach(motor => {
+      results.forEach(item => {
         const div = document.createElement("div");
         div.className = "menu";
-        div.textContent = motor.marque + " - " + motor.modele;
-        div.onclick = () => showGuides(motor.category || "moteurs", motor);
+        div.textContent = item.marque + " - " + item.modele + ` (${item.category})`;
+        div.onclick = () => showGuides(item);
         content.appendChild(div);
       });
     });
 
-    // 🚀 Démarrage
+    // === Démarrage ===
     showCategories();
   </script>
 </body>
