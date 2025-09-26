@@ -25,6 +25,10 @@
     button { margin-top:10px; padding:8px 12px; border:none; background:#ff6600; color:white; border-radius:5px; cursor:pointer; }
     button:hover { background:#e65c00; }
     .expert { margin-top:15px; padding:10px; border:1px dashed #ff6600; background:#fff7f0; }
+    .breadcrumb { font-size:14px; margin-bottom:15px; }
+    .breadcrumb span { color:#666; }
+    .breadcrumb a { color:#ff6600; cursor:pointer; text-decoration:none; }
+    .breadcrumb a:hover { text-decoration:underline; }
   </style>
 </head>
 <body>
@@ -32,19 +36,37 @@
   <div class="container">
     <!-- Barre de recherche -->
     <input type="text" id="searchBar" placeholder="🔍 Rechercher un modèle (ex: Oximo, RS100, Rolmotion, TaHoma...)">
+    <!-- Fil d’Ariane -->
+    <div id="breadcrumb" class="breadcrumb"></div>
     <div id="content"></div>
   </div>
 
-  <!-- Ton fichier data.js -->
+  <!-- Ton fichier data -->
   <script src="data.js"></script>
   <script>
     const content = document.getElementById("content");
     const searchBar = document.getElementById("searchBar");
+    const breadcrumb = document.getElementById("breadcrumb");
+
+    let navPath = []; // Pour stocker la navigation
+
+    function updateBreadcrumb() {
+      breadcrumb.innerHTML = navPath.map((item, index) => {
+        if (index === navPath.length - 1) {
+          return `<span>${item.label}</span>`; // Dernier élément = texte simple
+        } else {
+          return `<a onclick="${item.action}">${item.label}</a> > `;
+        }
+      }).join("");
+    }
 
     // 1️⃣ Page d’accueil → Catégories
     function showCategories() {
+      navPath = [{ label: "Catégories", action: "showCategories()" }];
+      updateBreadcrumb();
+
       content.innerHTML = "";
-      const categories = Object.keys(data); // ["moteurs", "automates"]
+      const categories = Object.keys(data);
       categories.forEach(cat => {
         const div = document.createElement("div");
         div.className = "menu";
@@ -54,9 +76,15 @@
       });
     }
 
-    // 2️⃣ Marques d’une catégorie
+    // 2️⃣ Marques
     function showMarques(category) {
-      content.innerHTML = `<div class="back" onclick="showCategories()">← Retour</div>`;
+      navPath = [
+        { label: "Catégories", action: "showCategories()" },
+        { label: category, action: `showMarques('${category}')` }
+      ];
+      updateBreadcrumb();
+
+      content.innerHTML = "";
       const items = data[category];
       const marques = [...new Set(items.map(item => item.marque))];
       marques.forEach(marque => {
@@ -68,9 +96,16 @@
       });
     }
 
-    // 3️⃣ Modèles d’une marque
+    // 3️⃣ Modèles
     function showModeles(category, marque) {
-      content.innerHTML = `<div class="back" onclick="showMarques('${category}')">← Retour</div>`;
+      navPath = [
+        { label: "Catégories", action: "showCategories()" },
+        { label: category, action: `showMarques('${category}')` },
+        { label: marque, action: `showModeles('${category}', '${marque}')` }
+      ];
+      updateBreadcrumb();
+
+      content.innerHTML = "";
       const modeles = data[category].filter(item => item.marque === marque);
       modeles.forEach(modele => {
         const div = document.createElement("div");
@@ -81,9 +116,17 @@
       });
     }
 
-    // 4️⃣ Guides d’un modèle
+    // 4️⃣ Guides
     function showGuides(category, modele) {
-      content.innerHTML = `<div class="back" onclick="showModeles('${category}', '${modele.marque}')">← Retour</div>`;
+      navPath = [
+        { label: "Catégories", action: "showCategories()" },
+        { label: category, action: `showMarques('${category}')` },
+        { label: modele.marque, action: `showModeles('${category}', '${modele.marque}')` },
+        { label: modele.modele, action: `showGuides('${category}', data['${category}'].find(m => m.marque === '${modele.marque}' && m.modele === '${modele.modele}'))` }
+      ];
+      updateBreadcrumb();
+
+      content.innerHTML = "";
       modele.guides.forEach(guide => {
         const div = document.createElement("div");
         div.className = "menu";
@@ -93,9 +136,18 @@
       });
     }
 
-    // 5️⃣ Détail d’un guide + mode expert
+    // 5️⃣ Détails
     function showGuideDetail(category, modele, guide) {
-      content.innerHTML = `<div class="back" onclick="showGuides('${category}', data['${category}'].find(m => m.marque === '${modele.marque}' && m.modele === '${modele.modele}'))">← Retour</div>`;
+      navPath = [
+        { label: "Catégories", action: "showCategories()" },
+        { label: category, action: `showMarques('${category}')` },
+        { label: modele.marque, action: `showModeles('${category}', '${modele.marque}')` },
+        { label: modele.modele, action: `showGuides('${category}', data['${category}'].find(m => m.marque === '${modele.marque}' && m.modele === '${modele.modele}'))` },
+        { label: guide.titre, action: "" }
+      ];
+      updateBreadcrumb();
+
+      content.innerHTML = "";
       const div = document.createElement("div");
       div.className = "menu";
       div.innerHTML = `<h3>${guide.titre}</h3>
@@ -117,7 +169,7 @@
       content.appendChild(div);
     }
 
-    // 🔍 Recherche rapide (dans toutes catégories)
+    // 🔍 Recherche
     searchBar.addEventListener("input", () => {
       const query = searchBar.value.trim().toLowerCase();
       if (query === "") {
@@ -133,6 +185,8 @@
         content.innerHTML = "<div class='menu'>Aucun résultat trouvé</div>";
         return;
       }
+      navPath = [{ label: "Recherche", action: "showCategories()" }];
+      updateBreadcrumb();
       filtered.forEach(motor => {
         const div = document.createElement("div");
         div.className = "menu";
